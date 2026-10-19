@@ -191,6 +191,8 @@ func (m MLP) GD(learningRate float64) {
 
 func (m MLP) SGD(learningRate float64, numSteps int, xs [][]*Value, ys []*Value) {
 
+	fmt.Println()
+
 	for i := 0; i <= numSteps; i++ {
 
 		loss := m.generateLoss(xs, ys)
@@ -204,5 +206,15 @@ func (m MLP) SGD(learningRate float64, numSteps int, xs [][]*Value, ys []*Value)
 
 	}
 	fmt.Printf("After finishing, loss is %f\n", m.generateLoss(xs, ys).data)
+
+}
+
+func (m MLP) printLoss(xs [][]*Value, ys []*Value) {
+
+	for i, xset := range xs {
+		fmt.Printf("%d | Modelled: %s | Expected: %s\n", i+1, m.Call(xset)[0].printf(), ys[i].printf())
+	}
+	loss := m.generateLoss(xs, ys)
+	fmt.Printf("Total Loss: %s \n",loss.printf())
 
 }

@@ -31,8 +31,13 @@ func (v *Value) printLong() {
 }
 
 func (v *Value) print() {
-	fmt.Printf("Value %s has data %f, gradient %f\n",
-	v.label, v.data, v.grad)
+	fmt.Printf("Value[data: %f]\n",
+	v.data)
+}
+
+func (v *Value) printf() string {
+	return fmt.Sprintf("Value[data: %f]",
+	v.data)
 }
 
 func (o *Value) printAll() {
