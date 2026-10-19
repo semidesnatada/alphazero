@@ -1,0 +1,156 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"slices"
+)
+
+type Value struct {
+	data float64
+	grad float64
+	parents []*Value
+	operation string
+	label string
+	back func()
+}
+
+func newValue(inputData float64, inputLabel string) *Value {
+	return &Value{
+		data: inputData,
+		grad: 0,
+		label: inputLabel,
+		parents: []*Value{},
+		back: func() {},
+	}
+}
+
+func (v *Value) printLong() {
+	fmt.Printf("Value %s has data %f, gradient %f, parents %v, operation %s\n",
+	v.label, v.data, v.grad, v.parents, v.operation)
+}
+
+func (v *Value) print() {
+	fmt.Printf("Value %s has data %f, gradient %f\n",
+	v.label, v.data, v.grad)
+}
+
+func (o *Value) printAll() {
+
+	sortedTree := []*Value{}
+	visited := make(map[*Value]bool)
+
+	var buildSortedTree func(v *Value)
+	buildSortedTree = func(v *Value) {
+		if !visited[v] {
+			visited[v] = true
+			for _, child := range v.parents {
+				buildSortedTree(child)
+			}
+			sortedTree = append(sortedTree, v)
+		}
+	}
+
+	buildSortedTree(o)
+
+	slices.Reverse(sortedTree)
+
+	fmt.Println()
+	for i, node := range sortedTree {
+		fmt.Printf("%d, %s, value: %f, gradient: %f\n", i, node.label, node.data, node.grad)
+	}
+
+}
+
+func (v *Value) tanh(newLabel string) *Value {
+
+	outDat := math.Tanh(v.data)
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += (1 - math.Pow(outDat,2)) * newV.grad
+	}
+
+	newV.back = backProp
+	newV.operation = "tanh"
+	newV.parents = append(newV.parents, v)
+
+	return newV
+
+}
+
+func (v *Value) add(o *Value, newLabel string) *Value {
+
+	outDat := v.data + o.data
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += newV.grad
+		o.grad += newV.grad
+	}
+
+	newV.back = backProp
+	newV.operation = "add"
+	newV.parents = append(newV.parents, v, o)
+
+	return newV
+
+}
+
+func (v *Value) times(o *Value, newLabel string) *Value {
+
+	outDat := v.data * o.data
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += newV.grad * o.data
+		o.grad += newV.grad * v.data
+	}
+
+	newV.back = backProp
+	newV.operation = "times"
+	newV.parents = append(newV.parents, v, o)
+
+	return newV
+
+}
+
+func (o *Value) backwardsPropagate() {
+
+	sortedTree := []*Value{}
+	visited := make(map[*Value]bool)
+
+	var buildSortedTree func(v *Value)
+	buildSortedTree = func(v *Value) {
+		if !visited[v] {
+			visited[v] = true
+			for _, child := range v.parents {
+				buildSortedTree(child)
+			}
+			sortedTree = append(sortedTree, v)
+		}
+	}
+
+	buildSortedTree(o)
+
+	slices.Reverse(sortedTree)
+
+	o.grad = 1.0
+
+	for _, node := range sortedTree {
+		node.back()
+	}
+
+}

@@ -1,4 +1,4 @@
-#AlphaZero in Golang
+# AlphaZero in Golang
 
 Replicating basic version of alphazero architecture in golang.
 
