@@ -105,6 +105,49 @@ func (v *Value) add(o *Value, newLabel string) *Value {
 
 }
 
+func (v *Value) sub(o *Value, newLabel string) *Value {
+
+	outDat := v.data - o.data
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += newV.grad
+		o.grad -= newV.grad
+	}
+
+	newV.back = backProp
+	newV.operation = "sub"
+	newV.parents = append(newV.parents, v, o)
+
+	return newV
+
+}
+
+func (v *Value) pow(n float64, newLabel string) *Value {
+
+	outDat := math.Pow(v.data, n)
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += n * math.Pow(v.data, n-1) * newV.grad
+	}
+
+	newV.back = backProp
+	newV.operation = fmt.Sprintf("pow-%f", n)
+	newV.parents = append(newV.parents, v)
+
+	return newV
+
+}
+
 func (v *Value) times(o *Value, newLabel string) *Value {
 
 	outDat := v.data * o.data
