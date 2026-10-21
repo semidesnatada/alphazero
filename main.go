@@ -56,7 +56,6 @@ func main() {
 	// 				. use stochastic gradient descent to reduce loss with learning rate multiplier to optimise.
 	// 				. wipe gradients
 
-
 	// Immediate tasks
 	//  *1. Add ReLU*, Log*, Exp*, Div*, to Value module.
 	//  *2. Fix Neural Net module, to permit different shape net outputs, different normalisation (ReLU).
