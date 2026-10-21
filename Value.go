@@ -67,6 +67,29 @@ func (o *Value) printAll() {
 
 }
 
+func (v *Value) relu(newLabel string) *Value {
+
+	outDat := max(v.data, 0)
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		if outDat > 0.0 {
+			v.grad += newV.grad
+		}
+	}
+
+	newV.back = backProp
+	newV.operation = "relu"
+	newV.parents = append(newV.parents, v)
+
+	return newV
+
+}
+
 func (v *Value) tanh(newLabel string) *Value {
 
 	outDat := math.Tanh(v.data)
@@ -133,6 +156,8 @@ func (v *Value) sub(o *Value, newLabel string) *Value {
 }
 
 func (v *Value) pow(n float64, newLabel string) *Value {
+	// works only for integer powers, when v.data is negative, as NAN is returned.
+	// if v.data is zero, negative powers return NAN.
 
 	outDat := math.Pow(v.data, n)
 
@@ -147,6 +172,51 @@ func (v *Value) pow(n float64, newLabel string) *Value {
 
 	newV.back = backProp
 	newV.operation = fmt.Sprintf("pow-%f", n)
+	newV.parents = append(newV.parents, v)
+
+	return newV
+
+}
+
+func (v *Value) exp(newLabel string) *Value {
+	// returns simple exp(v.data)
+
+	outDat := math.Exp(v.data)
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += outDat * newV.grad
+	}
+
+	newV.back = backProp
+	newV.operation = "exp"
+	newV.parents = append(newV.parents, v)
+
+	return newV
+
+}
+
+func (v *Value) log(newLabel string) *Value {
+	// returns simple natural log(v.data)
+	// not appropriate for handling negative inputs - these cases are not handled
+
+	outDat := math.Log(v.data)
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += newV.grad / v.data
+	}
+
+	newV.back = backProp
+	newV.operation = "log"
 	newV.parents = append(newV.parents, v)
 
 	return newV
@@ -169,6 +239,29 @@ func (v *Value) times(o *Value, newLabel string) *Value {
 
 	newV.back = backProp
 	newV.operation = "times"
+	newV.parents = append(newV.parents, v, o)
+
+	return newV
+
+}
+
+func (v *Value) divide(o *Value, newLabel string) *Value {
+	// v is dividend, o is divisor
+
+	outDat := v.data / o.data
+
+	newV := newValue(
+		outDat,
+		newLabel,
+	)
+
+	backProp := func() {
+		v.grad += newV.grad / o.data
+		o.grad -= newV.grad * v.data / (o.data * o.data)
+	}
+
+	newV.back = backProp
+	newV.operation = "divide"
 	newV.parents = append(newV.parents, v, o)
 
 	return newV
