@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"errors"
@@ -6,25 +6,25 @@ import (
 )
 
 type GameState struct {
-	currentHead *GameStateNode
-	prevState *GameStateNode
-	gameOver bool
+	CurrentHead *GameStateNode
+	PrevState *GameStateNode
+	GameOver bool
 }
 
 type GameStateNode struct {
-	possibleMoves map[int]bool
-	timesVisited int
-	wins int
-	boardState boardState
+	PossibleMoves map[int]bool
+	TimesVisited int
+	Wins int
+	BoardState BoardState
 }
 
-type boardState struct {
-	playing uint64
-	allPlayed uint64
+type BoardState struct {
+	Playing uint64
+	AllPlayed uint64
 }
 
-func (bs *boardState) checkWin() bool {
-    bits := bs.playing
+func (bs *BoardState) checkWin() bool {
+    bits := bs.Playing
     for _, shift := range []uint64{1, 7, 6, 8} {
         pairs := bits & (bits >> shift)
         if pairs&(pairs>>(2*shift)) != 0 {
@@ -34,30 +34,30 @@ func (bs *boardState) checkWin() bool {
     return false
 }
 
-func newGame() GameState {
+func NewGame() GameState {
 
 	return GameState{
-		currentHead: &GameStateNode{
-			possibleMoves: map[int]bool{
+		CurrentHead: &GameStateNode{
+			PossibleMoves: map[int]bool{
 				0:true,1:true,2:true,3:true,4:true,5:true,6:true,
 			},
-			timesVisited: 0,
-			wins: 0,
-			boardState: boardState{
-				playing: 0,
-				allPlayed: 0,
+			TimesVisited: 0,
+			Wins: 0,
+			BoardState: BoardState{
+				Playing: 0,
+				AllPlayed: 0,
 			},
 		},
-		prevState: nil,
-		gameOver: false,
+		PrevState: nil,
+		GameOver: false,
 	}
 
 }
 
-func (gs GameState) printBoard() {
+func (gs GameState) PrintBoard() {
 
-	playing := gs.currentHead.boardState.playing
-    allPlayed := gs.currentHead.boardState.allPlayed
+	playing := gs.CurrentHead.BoardState.Playing
+    allPlayed := gs.CurrentHead.BoardState.AllPlayed
 
     for row := 5; row >= 0; row-- {
         for col := 0; col < 7; col++ {
@@ -77,10 +77,10 @@ func (gs GameState) printBoard() {
 
 }
 
-func (gs *GameState) playMove(colMove int) error {
+func (gs *GameState) PlayMove(colMove int) error {
 
-	if possible := gs.currentHead.possibleMoves[colMove]; !possible || gs.gameOver {
-		if !gs.gameOver {
+	if possible := gs.CurrentHead.PossibleMoves[colMove]; !possible || gs.GameOver {
+		if !gs.GameOver {
 			fmt.Printf("move not possible in col %d\n", colMove)
 		} else {
 			fmt.Println("game is over")
@@ -88,39 +88,39 @@ func (gs *GameState) playMove(colMove int) error {
 		return errors.New("move not possible")
 	}
 
-	gs.prevState = gs.currentHead
-	bs := gs.prevState.boardState
+	gs.PrevState = gs.CurrentHead
+	bs := gs.PrevState.BoardState
 
 	for row := 0; row < 6; row++ {
         bit := uint64(1) << (colMove*7 + row)
-        if bs.allPlayed&bit == 0 {
-            bs.playing |= bit
-            bs.allPlayed |= bit
+        if bs.AllPlayed&bit == 0 {
+            bs.Playing |= bit
+            bs.AllPlayed |= bit
 			if bs.checkWin() {
-				gs.gameOver = true
+				gs.GameOver = true
 				fmt.Println("game has been won")
 			}
-			bs.playing ^= bs.allPlayed
+			bs.Playing ^= bs.AllPlayed
 			break
         }
     }
 
 	newHead := &GameStateNode{
-		possibleMoves: bs.getValidMoves(),
-		timesVisited: 0,
-		wins: 0,
-		boardState: bs,
+		PossibleMoves: bs.getValidMoves(),
+		TimesVisited: 0,
+		Wins: 0,
+		BoardState: bs,
 	}
-	gs.currentHead = newHead
+	gs.CurrentHead = newHead
 
 	return nil
 } 
 
-func (bs boardState) getValidMoves() map[int]bool {
+func (bs BoardState) getValidMoves() map[int]bool {
 	valids := make(map[int]bool)
 	for i := 0; i <= 6; i++ {
 		bit := uint64(1) << (i*7 + 5)
-		if bit & bs.allPlayed == 0 {
+		if bit & bs.AllPlayed == 0 {
 			valids[i] = true
 		} else {
 			valids[i] = false
