@@ -1,6 +1,6 @@
 package main
 
-import demos "alphazero/Demos"
+import demos "alphazero/demos"
 
 func main() {
 
@@ -59,10 +59,10 @@ func main() {
 
 	// Immediate tasks
 	//  *1. Add ReLU*, Log*, Exp*, Div*, to Value module.
-	//  2. Fix Neural Net module, to permit different shape net outputs, different normalisation (ReLU).
-	//  3. Implement Softmax and policy cross-entropy in Neural Net module.
-	//  4. Implement new Neural Net type which uses Connect Four structure, including dual policy and value output heads.
-	//  5. Implement new loss method for new neural net type, which accounts for the new head and loss function. Add this as a bespoke value operation, given the gradient is trivial (p_i - pi_i)
+	//  *2. Fix Neural Net module, to permit different shape net outputs, different normalisation (ReLU).
+	//  *3. Implement Softmax and policy cross-entropy in Neural Net module.
+	//  *4. Implement new Neural Net type which uses Connect Four structure, including dual policy and value output heads.
+	//  *5. Implement new loss method for new neural net type, which accounts for the new head and loss function. Add this as a bespoke value operation, given the gradient is trivial (p_i - pi_i)
 	//  6. Implement new training method for new neural net type.
 	//  7. Consider changing weight initialisation for new nets.
 	//  8. Allow dumping of neural net weights to file and import of weights from file.

@@ -118,12 +118,11 @@ func (l *DenseLayer) Call(inputs []*Value) []*Value {
 		outs = append(outs, l.neurons[len(l.neurons)-1].Call(inputs, "tanh"))
 	}
 
-
 	return outs
 
 }
 
-func (m *DenseNetwork) Call(inputs []*Value) []*Value {
+func (m *DenseNetwork) CallTraining(inputs []*Value) []*Value {
 
 	outs := inputs
 

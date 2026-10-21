@@ -268,6 +268,59 @@ func (v *Value) divide(o *Value, newLabel string) *Value {
 
 }
 
+func smce(vs, ys []*Value, newLabel string) *Value {
+	// calculates the softmaxcrossentropy loss of a series of values
+	// note that input vs are not already softmaxed, they are raw model outputs
+	// ys are the actuals we are using to calculate cross entropy
+	//  loss. these must sum to 1 / be a valid probability distribution.
+
+	numOutputs := len(vs)
+
+	// find maximum of the output nodes
+	maxOutput := vs[0].data
+    for i := 1; i < numOutputs; i++ {
+        if vs[i].data > maxOutput {
+            maxOutput = vs[i].data
+        }
+    }
+
+	ps := make([]float64, numOutputs)
+
+	for i := 0; i < numOutputs; i++ {
+		ps[i] = math.Exp(vs[i].data - maxOutput)
+	}
+	expSum := FloatSliceSum(ps)
+	for i := 0; i < numOutputs; i++ {
+		ps[i] /= expSum
+	}
+
+	// calculate the final cross-entropy loss
+	cFactor := math.Log(expSum) + maxOutput
+	outDat := 0.0
+	for i := 0; i < numOutputs; i++ {
+		outDat -= ys[i].data * (vs[i].data - cFactor)
+	}
+
+	newV := NewValue(
+		outDat,
+		newLabel,
+	)
+
+	// each output node gradient only depends on its softmax p and the actual, y.
+	backProp := func() {
+		for i := 0; i < numOutputs; i++ {
+			vs[i].grad += newV.grad * (ps[i] - ys[i].data)
+		}
+	}
+
+	newV.back = backProp
+	newV.operation = "smce"
+	newV.parents = append(newV.parents, vs...)
+
+	return newV
+
+}
+
 func (o *Value) backwardsPropagate() {
 
 	sortedTree := []*Value{}
