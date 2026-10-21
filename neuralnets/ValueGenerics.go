@@ -1,4 +1,4 @@
-package main
+package neuralnets
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ type Value struct {
 	back func()
 }
 
-func newValue(inputData float64, inputLabel string) *Value {
+func NewValue(inputData float64, inputLabel string) *Value {
 	return &Value{
 		data: inputData,
 		grad: 0,
@@ -71,7 +71,7 @@ func (v *Value) relu(newLabel string) *Value {
 
 	outDat := max(v.data, 0)
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -94,7 +94,7 @@ func (v *Value) tanh(newLabel string) *Value {
 
 	outDat := math.Tanh(v.data)
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -115,7 +115,7 @@ func (v *Value) add(o *Value, newLabel string) *Value {
 
 	outDat := v.data + o.data
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -137,7 +137,7 @@ func (v *Value) sub(o *Value, newLabel string) *Value {
 
 	outDat := v.data - o.data
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -161,7 +161,7 @@ func (v *Value) pow(n float64, newLabel string) *Value {
 
 	outDat := math.Pow(v.data, n)
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -183,7 +183,7 @@ func (v *Value) exp(newLabel string) *Value {
 
 	outDat := math.Exp(v.data)
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -206,7 +206,7 @@ func (v *Value) log(newLabel string) *Value {
 
 	outDat := math.Log(v.data)
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -227,7 +227,7 @@ func (v *Value) times(o *Value, newLabel string) *Value {
 
 	outDat := v.data * o.data
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)
@@ -250,7 +250,7 @@ func (v *Value) divide(o *Value, newLabel string) *Value {
 
 	outDat := v.data / o.data
 
-	newV := newValue(
+	newV := NewValue(
 		outDat,
 		newLabel,
 	)

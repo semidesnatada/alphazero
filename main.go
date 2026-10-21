@@ -1,46 +1,44 @@
 package main
 
-import "fmt"
-
 func main() {
 
 	SimpleBinaryClassifierMLP()
 
-	g := newGame()
-	g.printBoard()
+	// g := newGame()
+	// g.printBoard()
 
-	g.playMove(0)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.playMove(1)
-	g.printBoard()
+	// g.playMove(0)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.playMove(1)
+	// g.printBoard()
 
-	g.playMove(2)
-	g.playMove(3)
-	g.playMove(2)
-	g.playMove(1)
-	g.playMove(6)
-	g.playMove(6)
-	g.playMove(5)
-	g.playMove(6)
-	g.playMove(5)
-	g.playMove(6)
-	g.playMove(5)
-	g.playMove(6)
-	g.playMove(6)
-	g.playMove(5)
+	// g.playMove(2)
+	// g.playMove(3)
+	// g.playMove(2)
+	// g.playMove(1)
+	// g.playMove(6)
+	// g.playMove(6)
+	// g.playMove(5)
+	// g.playMove(6)
+	// g.playMove(5)
+	// g.playMove(6)
+	// g.playMove(5)
+	// g.playMove(6)
+	// g.playMove(6)
+	// g.playMove(5)
 
-	g.printBoard()
+	// g.printBoard()
 
-	fmt.Printf("%49b\n", g.currentHead.boardState.playing)
-	fmt.Printf("%49b\n", g.currentHead.boardState.allPlayed)
+	// fmt.Printf("%49b\n", g.currentHead.boardState.playing)
+	// fmt.Printf("%49b\n", g.currentHead.boardState.allPlayed)
 
 	// initialise neural network
 	// 	 - MLP with 84 binary inputs. 42 for player pieces on board; 42 for all pieces on board.
