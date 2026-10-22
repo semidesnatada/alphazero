@@ -45,6 +45,49 @@ func (m *DenseNetwork) CallAZFinal(inputs []*Value) []*Value {
 
 }
 
+func (m *DenseNetwork) CallAZFinalFloat(inputs []*Value) []float64 {
+	// returns the AZ model outputs but with the policy values
+	//  softmaxed, for use in training and later model use.
+	intermediate := m.CallTraining(inputs)
+
+	numOutputs := len(intermediate)
+	maxOutput := intermediate[0].data
+    for i := 1; i < numOutputs; i++ {
+        if intermediate[i].data > maxOutput {
+            maxOutput = intermediate[i].data
+        }
+    }
+
+	final := make([]*Value, numOutputs)
+	final[numOutputs - 1] = intermediate[numOutputs - 1]
+
+	expSum := 0.0
+	for i := 0; i < numOutputs - 1; i++ {
+		expSum += math.Exp(intermediate[i].data - maxOutput)
+	}
+	expSumVal := NewValue(expSum, "softmax-total-sum")
+	for i := 0; i < numOutputs - 1; i++ {
+		final[i] = intermediate[i].sub(
+		NewValue(
+			maxOutput,
+			"softmax-sum",
+		),
+		"stability-difference",
+		).exp(
+			fmt.Sprintf("exped-output-%d",i),
+		).divide(
+			expSumVal,
+			fmt.Sprintf("final-output-%d",i),
+		)
+	}
+	finalFloat := make([]float64, len(final))
+	for i, v := range final {
+		finalFloat[i] = v.data
+	}
+	return finalFloat
+
+}
+
 
 func (m *DenseNetwork) generateAZLoss(batch_inputs [][]*Value, batch_outputs [][]*Value) *Value {
 	// requires an AZ Network with a a set of output policy nodes and one value node

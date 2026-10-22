@@ -7,8 +7,9 @@ func main() {
 	// demos.SimpleBinaryClassifierMLP()
 
 	// demos.ConnectFourDemo()
+	demos.NoughtsAndCrossesDemo()
 
-	demos.AlphaZeroModelDemo()
+	// demos.AlphaZeroModelDemo()
 
 	// initialise neural network
 	// 	 - MLP with 84 binary inputs. 42 for player pieces on board; 42 for all pieces on board.
@@ -24,7 +25,7 @@ func main() {
 	
 	// for each in a set number of training cycles.
 	// 	 create training data by self play loop. 
-	//   A. for each in a set number of matches (c. 25-50 minimum, to provide buffer of c. 1,000 for first training round)
+	//   A. for each in a set number of matches (c. 25-50 minimum, to provide buffer of c. 1,000 frames for first training round)
 	// 		1. initialise tree for use in MCTS
 	//      2. initialise the game board (used binary bits; inversion switches player perspective)
 	//      3. initialise empty list of game states
@@ -58,14 +59,14 @@ func main() {
 	// 				. use stochastic gradient descent to reduce loss with learning rate multiplier to optimise.
 	// 				. wipe gradients
 
-	// Immediate tasks
+	// *Immediate tasks / All done
 	//  *1. Add ReLU*, Log*, Exp*, Div*, to Value module.
 	//  *2. Fix Neural Net module, to permit different shape net outputs, different normalisation (ReLU).
 	//  *3. Implement Softmax and policy cross-entropy in Neural Net module.
 	//  *4. Implement new Neural Net type which uses Connect Four structure, including dual policy and value output heads.
 	//  *5. Implement new loss method for new neural net type, which accounts for the new head and loss function. Add this as a bespoke value operation, given the gradient is trivial (p_i - pi_i)
 	//  *6. Implement new training method for new neural net type.
-	//  7. Consider changing weight initialisation for new nets.
+	//  *7. Consider changing weight initialisation for new nets.
 	//  *8. Allow dumping of neural net weights to file and import of weights from file.
 
 }

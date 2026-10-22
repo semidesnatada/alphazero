@@ -2,6 +2,7 @@ package neuralnets
 
 import (
 	"fmt"
+	"math"
 	"math/rand/v2"
 )
 
@@ -29,18 +30,17 @@ type DenseNetworkSpecification struct {
 	LayerActivations []string
 }
 
-func newNeuron(size int, l string) *Neuron {
+func newNeuron(size int, l string, randFn func() float64) *Neuron {
+	// initialisation is done by the passed in randFn. Biases are initialised to 0
 
-	newWeights := []*Value{}
+	newWeights := make([]*Value, size)
 	for i := 0; i < size; i++ {
-		newWeights = append(newWeights,
-			NewValue(rand.Float64()*2 - 1, fmt.Sprintf("%s-w%d", l, i+1)),
-		)
+		newWeights[i] = NewValue(randFn(), fmt.Sprintf("%s-w%d", l, i+1))
 	}
 
 	return &Neuron{
 		weights: newWeights,
-		bias: NewValue(rand.Float64()*2 - 1, fmt.Sprintf("%s-bias", l)),
+		bias: NewValue(0.0, fmt.Sprintf("%s-bias", l)),
 		label: l,
 	}
 
@@ -48,12 +48,39 @@ func newNeuron(size int, l string) *Neuron {
 
 func newDenseLayer(nInputs, nOutputs int, label, activationType string) *DenseLayer {
 
-	ns := []*Neuron{}
+	ns := make([]*Neuron, nOutputs)
+
+	var randFn func() float64
+
+	switch activationType {
+		case "relu":
+			sd := math.Sqrt(2.0 / float64(nInputs))
+			randFn = func() float64 {
+				return rand.NormFloat64() * sd
+			}
+		case "tanh":
+			sd := math.Sqrt(2.0 / float64(nInputs + nOutputs))
+			randFn = func() float64 {
+				return rand.NormFloat64() * sd
+			}
+		case "linear":
+			sd := math.Sqrt(2.0 / float64(nInputs + nOutputs))
+			randFn = func() float64 {
+				return rand.NormFloat64() * sd
+			}
+		default:
+			randFn = func() float64 {
+				return rand.Float64()*2 - 1
+			}
+	}
+
 
 	for i := 0; i < nOutputs; i++ {
-		ns = append(ns, newNeuron(
-			nInputs, fmt.Sprintf("layer-%s-neuron-%d", label, i+1),
-		))
+		ns[i] = newNeuron(
+			nInputs,
+			fmt.Sprintf("layer-%s-neuron-%d", label, i+1),
+			randFn,
+		)
 	}
 
 	return &DenseLayer{
@@ -129,7 +156,11 @@ func (n Neuron) Call(input []*Value, activationType string) *Value {
 			return proc.tanh(fmt.Sprintf("%s-tanh-activation",n.label))
 		case "relu":
 			return proc.relu(fmt.Sprintf("%s-relu-activation",n.label))
+		case "linear":
+			proc.label = fmt.Sprintf("%s-linear-activation",n.label)
+			return proc
 		default:
+			// same as linear
 			proc.label = fmt.Sprintf("%s-linear-activation",n.label)
 			return proc
 	}
