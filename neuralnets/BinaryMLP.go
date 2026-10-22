@@ -5,22 +5,6 @@ import (
 )
 
 
-func NewMLP(spec DenseNetworkSpecification) *DenseNetwork {
-
-	ls := []*DenseLayer{}
-
-	for i := 0; i < len(spec.LayerSizes)-1; i++ {
-		ls = append(ls, 
-			newDenseLayer(spec.LayerSizes[i], spec.LayerSizes[i+1], fmt.Sprintf("%d",i+1), spec.LayerActivations[i+1]),
-		)
-	}
-
-	return &DenseNetwork{
-		layers: ls,
-	}
-
-}
-
 func (m *DenseNetwork) generateTSELoss(xs [][]*Value, ys []*Value) *Value {
 	// requires an MLP with a one final output node
 	// loss function is Total Square Error

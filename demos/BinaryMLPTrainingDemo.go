@@ -6,7 +6,7 @@ import (
 )
 
 func SimpleBinaryClassifierMLP() {
-	binaryMLP := neuralnets.NewMLP(
+	binaryMLP := neuralnets.NewDenseNetwork(
 		neuralnets.DenseNetworkSpecification{
 			LayerSizes: []int{3, 4, 4, 1},
 			LayerActivations: []string{"", "tanh", "tanh", "tanh"},

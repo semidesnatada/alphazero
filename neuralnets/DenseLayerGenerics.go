@@ -16,7 +16,6 @@ type DenseLayer struct {
 	neurons []*Neuron
 	label string
 	activationType string
-	supplementaryData []float64
 }
 
 type DenseNetwork struct {
@@ -63,6 +62,43 @@ func newDenseLayer(nInputs, nOutputs int, label, activationType string) *DenseLa
 		activationType: activationType,
 	}
 
+}
+
+func NewDenseNetwork(spec DenseNetworkSpecification) *DenseNetwork {
+	if len(spec.LayerSizes) != len(spec.LayerActivations) {
+		panic("Network specification must have slices of same length")
+	}
+
+	ls := []*DenseLayer{}
+
+	numLayers := len(spec.LayerSizes)
+
+	for i := 0; i < numLayers - 1; i++ {
+		ls = append(ls, 
+			newDenseLayer(
+				spec.LayerSizes[i],
+				spec.LayerSizes[i+1],
+				fmt.Sprintf("%d",i+1),
+				spec.LayerActivations[i+1],
+			),
+		)
+	}
+
+	return &DenseNetwork{
+		layers: ls,
+	}
+
+}
+
+
+func (m *DenseNetwork) Inspect() {
+	for i, layer := range m.layers {
+		fmt.Printf("Layer %d has size %d\n", i+1, len(layer.neurons))
+		for j := 0; j < len(layer.neurons); j ++ {
+			fmt.Printf(" %f \n", layer.neurons[j].flattenFloat())
+		}
+		fmt.Printf("\n")
+	}
 }
 
 
@@ -138,6 +174,15 @@ func (n Neuron) flatten() []*Value {
 	return append(n.weights, n.bias)
 }
 
+func (n Neuron) flattenFloat() []float64 {
+	out := []float64{}
+	for _, weight := range n.weights {
+		out = append(out, weight.data)
+	}
+	out = append(out, n.bias.data)
+	return out
+}
+ 
 func (l DenseLayer) flatten() []*Value {
 	out := []*Value{}
 	for _, n := range l.neurons {

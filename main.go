@@ -4,9 +4,11 @@ import demos "alphazero/demos"
 
 func main() {
 
-	demos.SimpleBinaryClassifierMLP()
+	// demos.SimpleBinaryClassifierMLP()
 
-	demos.ConnectFourDemo()
+	// demos.ConnectFourDemo()
+
+	demos.AlphaZeroModelDemo()
 
 	// initialise neural network
 	// 	 - MLP with 84 binary inputs. 42 for player pieces on board; 42 for all pieces on board.
@@ -62,8 +64,8 @@ func main() {
 	//  *3. Implement Softmax and policy cross-entropy in Neural Net module.
 	//  *4. Implement new Neural Net type which uses Connect Four structure, including dual policy and value output heads.
 	//  *5. Implement new loss method for new neural net type, which accounts for the new head and loss function. Add this as a bespoke value operation, given the gradient is trivial (p_i - pi_i)
-	//  6. Implement new training method for new neural net type.
+	//  *6. Implement new training method for new neural net type.
 	//  7. Consider changing weight initialisation for new nets.
-	//  8. Allow dumping of neural net weights to file and import of weights from file.
+	//  *8. Allow dumping of neural net weights to file and import of weights from file.
 
 }
