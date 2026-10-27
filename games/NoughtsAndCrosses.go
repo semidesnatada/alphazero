@@ -35,8 +35,25 @@ func (nb NACBoard) PossibleMoves() map[int]bool {
 
 	moves := make(map[int]bool)
 
+	if over, _ := nb.IsGameOver(); over {
+		return moves
+	}
+
 	for i, val := range nb {
 		if val == 0 {
+			moves[i] = true
+		}
+	}
+
+	return moves
+}
+
+func (nb NACBoard) ImpossibleMoves() map[int]bool {
+
+	moves := make(map[int]bool)
+
+	for i, val := range nb {
+		if val != 0 {
 			moves[i] = true
 		}
 	}
@@ -151,8 +168,9 @@ func (b NACBoard) ConvertToValues() []*neuralnets.Value {
 }
 
 func (gs *NACGameState) PlayMatch(
-	moveSelectorP1 func(map[int]bool, NACBoard, *neuralnets.DenseNetwork) (int, error),
-	moveSelectorP2 func(map[int]bool, NACBoard, *neuralnets.DenseNetwork) (int, error),
+	moveSelectorP1 func(map[int]bool, NACBoard, *neuralnets.DenseNetwork, int) (int, error),
+	moveSelectorP2 func(map[int]bool, NACBoard, *neuralnets.DenseNetwork, int) (int, error),
+	model *neuralnets.DenseNetwork,
 	print bool,
 ) error {
 
@@ -161,9 +179,18 @@ func (gs *NACGameState) PlayMatch(
 		var mErr error
 
 		if gs.CurrentHead.CurrentPlayer == 1 {
-			move, mErr = moveSelectorP1(gs.CurrentHead.PossibleMovesMap, gs.CurrentHead.Board, nil)
+			move, mErr = moveSelectorP1(
+				gs.CurrentHead.PossibleMovesMap,
+				gs.CurrentHead.Board,
+				model,
+				gs.CurrentHead.CurrentPlayer,
+			)
 		} else if gs.CurrentHead.CurrentPlayer == -1 {
-			move, mErr = moveSelectorP2(gs.CurrentHead.PossibleMovesMap, gs.CurrentHead.Board, nil)
+			move, mErr = moveSelectorP2(gs.CurrentHead.PossibleMovesMap,
+				gs.CurrentHead.Board,
+				model,
+				gs.CurrentHead.CurrentPlayer,
+			)
 		}
 		
 		if mErr != nil {
@@ -186,7 +213,7 @@ func (gs *NACGameState) PlayMatch(
 
 }
 
-func RandomMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.DenseNetwork) (int, error) {
+func RandomMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.DenseNetwork, playerVal int) (int, error) {
 	// A standard move selector function which select only random moves	
 	// Note that when used, the input n should == nil
 
@@ -200,7 +227,7 @@ func RandomMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.Dense
 	return move, nil
 }
 
-func ModelBasedMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.DenseNetwork) (int, error) {
+func ModelBasedMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.DenseNetwork, playerVal int) (int, error) {
 	// A selector which chooses the move the provided model gives highest weight
 	//  n should be an AZ network.
 
@@ -208,7 +235,12 @@ func ModelBasedMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.D
 		return -1, errors.New("no valid moves to select from")
 	}
 
-	inputs := b.ConvertToValues()
+	normedB := make(NACBoard, len(b))
+	for i, item := range b {
+		normedB[i] = playerVal * item
+	}
+
+	inputs := normedB.ConvertToValues()
 
 	movePs := n.CallAZFinalFloat(inputs)
 
@@ -237,4 +269,38 @@ func ModelBasedMoveSelector(validMoves map[int]bool, b NACBoard, n *neuralnets.D
 	}
 
 	return argMax, nil
+}
+
+
+func ModelPlusMCTSBasedMoveSelector(
+		validMoves map[int]bool,
+		b NACBoard,
+		n *neuralnets.DenseNetwork,
+		playerVal int,
+	) (int, error) {
+	// A selector which chooses the move the provided model gives highest weight
+	//  n should be an AZ network.
+
+	if len(validMoves) <= 0 {
+		return -1, errors.New("no valid moves to select from")
+	}
+
+	normedB := make(NACBoard, len(b))
+	for i, item := range b {
+		normedB[i] = playerVal * item
+	}
+
+	moveSearchDepth := 100
+
+	move, err := MCTSMoveSelector(normedB, moveSearchDepth, n, playerVal)
+	if err != nil {
+		return -1, err
+	}
+
+	_, ok := validMoves[move]
+	if !ok {
+		return -1, errors.New("an error identifying the best move via model")
+	}
+
+	return move, nil
 }

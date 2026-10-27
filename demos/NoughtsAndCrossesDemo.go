@@ -44,6 +44,7 @@ func NoughtsAndCrossesDemo() {
 	err := g.PlayMatch(
 		games.RandomMoveSelector,
 		games.RandomMoveSelector,
+		nil,
 		true,
 	)
 	if err != nil {
@@ -58,6 +59,7 @@ func NoughtsAndCrossesDemo() {
 		errg := gg.PlayMatch(
 			games.RandomMoveSelector,
 			games.RandomMoveSelector,
+			nil,
 			false,
 		)
 		if errg != nil {

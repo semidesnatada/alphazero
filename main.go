@@ -7,7 +7,13 @@ func main() {
 	// demos.SimpleBinaryClassifierMLP()
 
 	// demos.ConnectFourDemo()
-	demos.NoughtsAndCrossesDemo()
+	// demos.NoughtsAndCrossesDemo()
+	// demos.TestMCTS()
+
+	// demos.TestRandomOpponents()
+	demos.NACModelTesting()
+
+	// demos.TestSingleMCTSRun()
 
 	// demos.AlphaZeroModelDemo()
 
